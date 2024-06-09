@@ -1,5 +1,7 @@
 import type { WithClickHouseSummary } from './clickhouse_types'
 import type { LogWriter } from './logger'
+import type http from 'http'
+import type https from 'https'
 import type { ClickHouseSettings } from './settings'
 
 export interface ConnectionParams {
@@ -13,6 +15,7 @@ export interface ConnectionParams {
   clickhouse_settings: ClickHouseSettings
   log_writer: LogWriter
   keep_alive: { enabled: boolean }
+  agent?: http.Agent | https.Agent
   application_id?: string
   http_headers?: Record<string, string>
 }

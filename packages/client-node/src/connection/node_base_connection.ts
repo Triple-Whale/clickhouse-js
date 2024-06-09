@@ -22,7 +22,6 @@ import {
 } from '@clickhouse/client-common'
 import crypto from 'crypto'
 import type Http from 'http'
-import type * as net from 'net'
 import Stream from 'stream'
 import type { URLSearchParams } from 'url'
 import Zlib from 'zlib'
@@ -32,6 +31,7 @@ import { drainStream } from './stream'
 
 export type NodeConnectionParams = ConnectionParams & {
   tls?: TLSParams
+  agent?: Http.Agent
   keep_alive: {
     enabled: boolean
     idle_socket_ttl: number
@@ -70,8 +70,6 @@ export abstract class NodeBaseConnection
   protected readonly additionalHTTPHeaders: Record<string, string>
 
   private readonly logger: LogWriter
-  private readonly knownSockets = new WeakMap<net.Socket, SocketInfo>()
-  private readonly idleSocketTTL: number
 
   protected constructor(
     protected readonly params: NodeConnectionParams,
@@ -88,7 +86,6 @@ export abstract class NodeBaseConnection
       'User-Agent': getUserAgent(this.params.application_id),
     }
     this.logger = params.log_writer
-    this.idleSocketTTL = params.keep_alive.idle_socket_ttl
   }
 
   async ping(): Promise<ConnPingResult> {
@@ -478,72 +475,7 @@ export abstract class NodeBaseConnection
         }
       }
 
-      const onSocket = (socket: net.Socket) => {
-        if (this.params.keep_alive.enabled) {
-          const socketInfo = this.knownSockets.get(socket)
-          // It is the first time we encounter this socket,
-          // so it doesn't have the idle timeout handler attached to it
-          if (socketInfo === undefined) {
-            const socketId = crypto.randomUUID()
-            this.logger.trace({
-              message: `Using a fresh socket ${socketId}, setting up a new 'free' listener`,
-            })
-            this.knownSockets.set(socket, {
-              id: socketId,
-              idle_timeout_handle: undefined,
-            })
-            // When the request is complete and the socket is released,
-            // make sure that the socket is removed after `idleSocketTTL`.
-            socket.on('free', () => {
-              this.logger.trace({
-                message: `Socket ${socketId} was released`,
-              })
-              // Avoiding the built-in socket.timeout() method usage here,
-              // as we don't want to clash with the actual request timeout.
-              const idleTimeoutHandle = setTimeout(() => {
-                this.logger.trace({
-                  message: `Removing socket ${socketId} after ${this.idleSocketTTL} ms of idle`,
-                })
-                this.knownSockets.delete(socket)
-                socket.destroy()
-              }, this.idleSocketTTL).unref()
-              this.knownSockets.set(socket, {
-                id: socketId,
-                idle_timeout_handle: idleTimeoutHandle,
-              })
-            })
-
-            const cleanup = () => {
-              const maybeSocketInfo = this.knownSockets.get(socket)
-              // clean up a possibly dangling idle timeout handle (preventing leaks)
-              if (maybeSocketInfo?.idle_timeout_handle) {
-                clearTimeout(maybeSocketInfo.idle_timeout_handle)
-              }
-              this.logger.trace({
-                message: `Socket ${socketId} was closed or ended, 'free' listener removed`,
-              })
-            }
-            socket.once('end', cleanup)
-            socket.once('close', cleanup)
-          } else {
-            clearTimeout(socketInfo.idle_timeout_handle)
-            this.logger.trace({
-              message: `Reusing socket ${socketInfo.id}`,
-            })
-            this.knownSockets.set(socket, {
-              ...socketInfo,
-              idle_timeout_handle: undefined,
-            })
-          }
-        }
-
-        // Socket is "prepared" with idle handlers, continue with our request
-        pipeStream()
-
-        // This is for request timeout only. Surprisingly, it is not always enough to set in the HTTP request.
-        // The socket won't be actually destroyed, and it will be returned to the pool.
-        socket.setTimeout(this.params.request_timeout, onTimeout)
-      }
+      pipeStream()
 
       function onTimeout(): void {
         removeRequestListeners()
@@ -556,7 +488,6 @@ export abstract class NodeBaseConnection
           request.socket.setTimeout(0) // reset previously set timeout
           request.socket.removeListener('timeout', onTimeout)
         }
-        request.removeListener('socket', onSocket)
         request.removeListener('response', onResponse)
         request.removeListener('error', onError)
         request.removeListener('close', onClose)
@@ -565,7 +496,6 @@ export abstract class NodeBaseConnection
         }
       }
 
-      request.on('socket', onSocket)
       request.on('response', onResponse)
       request.on('error', onError)
       request.on('close', onClose)
@@ -591,11 +521,6 @@ interface LogRequestErrorParams {
   query_params: ConnBaseQueryParams
   search_params: URLSearchParams | undefined
   extra_args: Record<string, unknown>
-}
-
-interface SocketInfo {
-  id: string
-  idle_timeout_handle: ReturnType<typeof setTimeout> | undefined
 }
 
 type RunExecParams = ConnBaseQueryParams & {

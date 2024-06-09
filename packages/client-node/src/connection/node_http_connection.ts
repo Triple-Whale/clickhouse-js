@@ -8,10 +8,12 @@ import { NodeBaseConnection } from './node_base_connection'
 
 export class NodeHttpConnection extends NodeBaseConnection {
   constructor(params: NodeConnectionParams) {
-    const agent = new Http.Agent({
-      keepAlive: params.keep_alive.enabled,
-      maxSockets: params.max_open_connections,
-    })
+    const agent =
+      params.agent ??
+      new Http.Agent({
+        keepAlive: params.keep_alive.enabled,
+        maxSockets: params.max_open_connections,
+      })
     super(params, agent)
   }
 
