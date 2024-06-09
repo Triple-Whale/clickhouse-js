@@ -1,5 +1,5 @@
 {
-  "name": "@clickhouse/client",
+  "name": "@tw/clickhouse-client",
   "description": "Official JS client for ClickHouse DB - Node.js implementation",
   "homepage": "https://clickhouse.com",
   "version": "0.0.0",

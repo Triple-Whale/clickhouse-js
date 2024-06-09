@@ -488,8 +488,6 @@ export abstract class NodeBaseConnection
           request.socket.setTimeout(0) // reset previously set timeout
           request.socket.removeListener('timeout', onTimeout)
         }
-        request.removeListener('response', onResponse)
-        request.removeListener('error', onError)
         request.removeListener('close', onClose)
         if (params.abort_signal !== undefined) {
           request.removeListener('abort', onAbort)
