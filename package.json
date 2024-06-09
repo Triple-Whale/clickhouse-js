@@ -1,8 +1,8 @@
 {
-  "name": "@tw/clickhouse-client",
-  "description": "Official JS client for ClickHouse DB - Node.js implementation",
+  "name": "clickhouse-js",
+  "description": "Official JS client for ClickHouse DB",
   "homepage": "https://clickhouse.com",
-  "version": "1.1.1",
+  "version": "0.0.0",
   "license": "Apache-2.0",
   "keywords": [
     "clickhouse",
@@ -17,12 +17,96 @@
   "engines": {
     "node": ">=16"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "scripts": {
+    "build:node:all": "rm -rf out; tsc --project tsconfig.all.json",
+    "build:common:package": ".scripts/build.sh client-common",
+    "build:node:package": ".scripts/build.sh client-node",
+    "build:web:package": ".scripts/build.sh client-web",
+    "build:web:minjs": "webpack --config webpack.release.js",
+    "typecheck": "tsc --project tsconfig.all.json --noEmit",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint --fix . --ext .ts",
+    "test": ".scripts/jasmine.sh jasmine.all.json",
+    "test:common:unit": ".scripts/jasmine.sh jasmine.common.unit.json",
+    "test:common:integration": ".scripts/jasmine.sh jasmine.common.integration.json",
+    "test:node:unit": ".scripts/jasmine.sh jasmine.node.unit.json",
+    "test:node:tls": ".scripts/jasmine.sh jasmine.node.tls.json",
+    "test:node:integration": ".scripts/jasmine.sh jasmine.node.integration.json",
+    "test:node:integration:local_cluster": "CLICKHOUSE_TEST_ENVIRONMENT=local_cluster npm run test:node:integration",
+    "test:node:integration:cloud": "CLICKHOUSE_TEST_ENVIRONMENT=cloud npm run test:node:integration",
+    "test:node:integration:cloud_smt": "CLICKHOUSE_TEST_ENVIRONMENT=cloud_smt npm run test:node:integration",
+    "test:node:coverage": "nyc npm run test",
+    "test:web": "karma start karma.config.cjs",
+    "test:web:integration:local_cluster": "CLICKHOUSE_TEST_ENVIRONMENT=local_cluster npm run test:web",
+    "test:web:integration:cloud": "CLICKHOUSE_TEST_ENVIRONMENT=cloud npm run test:web",
+    "test:web:integration:cloud_smt": "CLICKHOUSE_TEST_ENVIRONMENT=cloud_smt npm run test:web",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/jasmine": "^5.1.4",
+    "@types/node": "^20.11.30",
+    "@types/sinon": "^17.0.3",
+    "@types/split2": "^4.2.3",
+    "@types/uuid": "^9.0.8",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
+    "apache-arrow": "^15.0.2",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-expect-type": "^0.3.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^9.0.11",
+    "jasmine": "^5.1.0",
+    "jasmine-core": "^5.1.2",
+    "jasmine-expect": "^5.0.0",
+    "karma": "^6.4.3",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-firefox-launcher": "^2.1.3",
+    "karma-jasmine": "^5.1.0",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-sourcemap-loader": "^0.4.0",
+    "karma-typescript": "^5.5.4",
+    "karma-webpack": "^5.0.1",
+    "lint-staged": "^15.2.2",
+    "nyc": "^15.1.0",
+    "parquet-wasm": "0.6.0-beta.2",
+    "prettier": "3.2.5",
+    "sinon": "^17.0.1",
+    "source-map-support": "^0.5.21",
+    "split2": "^4.2.0",
+    "terser-webpack-plugin": "^5.3.10",
+    "ts-jest": "^29.1.2",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tsconfig-paths-webpack-plugin": "^4.1.0",
+    "typescript": "^5.4.3",
+    "uuid": "^9.0.1",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^5.10.0"
+  },
+  "workspaces": [
+    "./packages/*"
+  ],
   "files": [
     "dist"
   ],
-  "dependencies": {
-    "@clickhouse/client-common": "1.1.0"
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "npm run lint:fix"
+    ],
+    "*.json": [
+      "prettier --write"
+    ],
+    "*.yml": [
+      "prettier --write"
+    ],
+    "*.md": [
+      "prettier --write"
+    ]
   }
 }
