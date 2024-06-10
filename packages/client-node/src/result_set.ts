@@ -4,12 +4,12 @@ import type {
   ResultJSONType,
   ResultStream,
   Row,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
 import {
   isNotStreamableJSONFamily,
   isStreamableJSONFamily,
   validateStreamFormat,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
 import { Buffer } from 'buffer'
 import type { Readable, TransformCallback } from 'stream'
 import Stream, { Transform } from 'stream'

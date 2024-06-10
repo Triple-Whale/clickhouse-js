@@ -1,13 +1,15 @@
 import type {
   DataFormat,
   ImplementationDetails,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
 import {
   type BaseClickHouseClientConfigOptions,
   type ConnectionParams,
   numberConfigURLValue,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
 import type Stream from 'stream'
+import type http from 'http'
+import type https from 'https'
 import { createConnection, type TLSParams } from './connection'
 import { ResultSet } from './result_set'
 import { NodeValuesEncoder } from './utils'
@@ -15,6 +17,7 @@ import { NodeValuesEncoder } from './utils'
 export type NodeClickHouseClientConfigOptions =
   BaseClickHouseClientConfigOptions & {
     tls?: BasicTLSOptions | MutualTLSOptions
+    agent?: http.Agent | https.Agent
     /** HTTP Keep-Alive related settings */
     keep_alive?: {
       /** Enable or disable HTTP Keep-Alive mechanism.

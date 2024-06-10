@@ -4,12 +4,12 @@ import type {
   ResultJSONType,
   ResultStream,
   Row,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
 import {
   isNotStreamableJSONFamily,
   isStreamableJSONFamily,
-} from '@clickhouse/client-common'
-import { validateStreamFormat } from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
+import { validateStreamFormat } from '@tw/clickhouse-client-common'
 import { getAsText } from './utils'
 
 export class ResultSet<Format extends DataFormat | unknown>

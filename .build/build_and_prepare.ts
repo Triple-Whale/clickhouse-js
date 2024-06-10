@@ -27,11 +27,11 @@ import * as process from 'process'
   console.log(`Current ${packageName} package version is: ${version}`)
   packageJson.version = version
 
-  if (packageJson['dependencies']['@clickhouse/client-common']) {
+  if (packageJson['dependencies']['@tw/clickhouse-client-common']) {
     const commonVersion =
       require(`../packages/client-common/src/version.ts`).default
     console.log(`Updating client-common dependency to ${commonVersion}`)
-    packageJson['dependencies']['@clickhouse/client-common'] = commonVersion
+    packageJson['dependencies']['@tw/clickhouse-client-common'] = commonVersion
   }
 
   console.log('Updated package json:')

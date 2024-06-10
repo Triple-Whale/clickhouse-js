@@ -1,20 +1,26 @@
 import type {
+  InputJSON,
+  InputJSONObjectEachRow,
+  WithClickHouseSummary,
+} from './clickhouse_types'
+import type {
   BaseClickHouseClientConfigOptions,
-  ClickHouseSettings,
+  ImplementationDetails,
+  MakeResultSet,
+  ValuesEncoder,
+} from './config'
+import { getConnectionParams, prepareConfigWithURL } from './config'
+import type {
+  ConnExecResult,
+  ConnPingResult,
   Connection,
   ConnectionParams,
-  ConnExecResult,
-  IsSame,
-  LogWriter,
-  MakeResultSet,
-  WithClickHouseSummary,
-} from '@clickhouse/client-common'
-import { type DataFormat, DefaultLogger } from '@clickhouse/client-common'
-import type { InputJSON, InputJSONObjectEachRow } from './clickhouse_types'
-import type { ImplementationDetails, ValuesEncoder } from './config'
-import { getConnectionParams, prepareConfigWithURL } from './config'
-import type { ConnPingResult } from './connection'
+} from './connection'
 import type { BaseResultSet } from './result'
+import type { ClickHouseSettings } from './settings'
+import { DefaultLogger, type LogWriter } from './logger'
+import type { IsSame } from './ts_utils'
+import type { DataFormat } from './data_formatter'
 
 export interface BaseQueryParams {
   /** ClickHouse's settings that can be applied on query level. */

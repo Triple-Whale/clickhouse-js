@@ -6,7 +6,7 @@ export { createClient } from './client'
 export { type WebClickHouseClientConfigOptions as ClickHouseClientConfigOptions } from './config'
 export { ResultSet } from './result_set'
 
-/** Re-export @clickhouse/client-common types */
+/** Re-export @tw/clickhouse-client-common types */
 export {
   type BaseClickHouseClientConfigOptions,
   type BaseQueryParams,
@@ -39,4 +39,4 @@ export {
   ClickHouseError,
   ClickHouseLogLevel,
   SettingsMap,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'

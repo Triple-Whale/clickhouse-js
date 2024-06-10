@@ -7,7 +7,7 @@ import type {
   ConnInsertResult,
   ConnPingResult,
   ConnQueryResult,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
 import {
   isSuccessfulResponse,
   parseError,
@@ -15,7 +15,7 @@ import {
   transformUrl,
   withCompressionHeaders,
   withHttpSettings,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
 import { getAsText } from '../utils'
 
 type WebInsertParams<T> = Omit<

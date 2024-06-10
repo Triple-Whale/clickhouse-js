@@ -1,6 +1,8 @@
 import type { InsertValues } from './client'
 import type { Connection, ConnectionParams } from './connection'
 import type { DataFormat } from './data_formatter'
+import type http from 'http'
+import type https from 'https'
 import type { Logger } from './logger'
 import { ClickHouseLogLevel, LogWriter } from './logger'
 import type { BaseResultSet } from './result'
@@ -76,6 +78,7 @@ export interface BaseClickHouseClientConfigOptions {
      *  @default true */
     enabled?: boolean
   }
+  agent?: http.Agent | https.Agent
 }
 
 export type MakeConnection<
@@ -216,6 +219,7 @@ export function getConnectionParams(
     keep_alive: { enabled: config.keep_alive?.enabled ?? true },
     clickhouse_settings: config.clickhouse_settings ?? {},
     http_headers: config.http_headers ?? {},
+    agent: config.agent,
   }
 }
 

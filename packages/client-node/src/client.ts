@@ -2,8 +2,8 @@ import type {
   DataFormat,
   IsSame,
   QueryParamsWithFormat,
-} from '@clickhouse/client-common'
-import { ClickHouseClient } from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
+import { ClickHouseClient } from '@tw/clickhouse-client-common'
 import type Stream from 'stream'
 import type { NodeClickHouseClientConfigOptions } from './config'
 import { NodeConfigImpl } from './config'
@@ -29,6 +29,7 @@ export class NodeClickHouseClient extends ClickHouseClient<Stream.Readable> {
 export function createClient(
   config?: NodeClickHouseClientConfigOptions,
 ): NodeClickHouseClient {
+  // @ts-expect-error fix
   return new ClickHouseClient<Stream.Readable>({
     impl: NodeConfigImpl,
     ...(config || {}),

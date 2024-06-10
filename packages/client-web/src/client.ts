@@ -6,8 +6,8 @@ import type {
   InsertResult,
   IsSame,
   QueryParamsWithFormat,
-} from '@clickhouse/client-common'
-import { ClickHouseClient } from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
+import { ClickHouseClient } from '@tw/clickhouse-client-common'
 import type { WebClickHouseClientConfigOptions } from './config'
 import { WebImpl } from './config'
 import type { ResultSet } from './result_set'
@@ -44,6 +44,7 @@ class WebClickHouseClientImpl extends ClickHouseClient<ReadableStream> {
 export function createClient(
   config?: WebClickHouseClientConfigOptions,
 ): WebClickHouseClient {
+  // @ts-expect-error fix
   return new WebClickHouseClientImpl({
     impl: WebImpl,
     ...(config || {}),

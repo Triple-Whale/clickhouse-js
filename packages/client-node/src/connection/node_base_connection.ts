@@ -12,14 +12,14 @@ import type {
   ConnPingResult,
   ConnQueryResult,
   LogWriter,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
 import {
   isSuccessfulResponse,
   parseError,
   toSearchParams,
   transformUrl,
   withHttpSettings,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
 import crypto from 'crypto'
 import type Http from 'http'
 import Stream from 'stream'
@@ -143,6 +143,7 @@ export abstract class NodeBaseConnection
           body: params.query,
           abort_signal: controller.signal,
           decompress_response: decompressResponse,
+          // @ts-expect-error fix
           headers: this.buildRequestHeaders(params),
         },
         'Query',
@@ -192,6 +193,7 @@ export abstract class NodeBaseConnection
           abort_signal: controller.signal,
           compress_request: this.params.compression.compress_request,
           parse_summary: true,
+          // @ts-expect-error fix
           headers: this.buildRequestHeaders(params),
         },
         'Insert',
@@ -370,6 +372,7 @@ export abstract class NodeBaseConnection
           body: params.query,
           abort_signal: controller.signal,
           parse_summary: true,
+          // @ts-expect-error fix
           headers: this.buildRequestHeaders(params),
         },
         params.op,
@@ -405,14 +408,15 @@ export abstract class NodeBaseConnection
       const start = Date.now()
       const request = this.createClientRequest(params)
 
+      request.on('error', onError)
       function onError(err: Error): void {
-        removeRequestListeners()
         reject(err)
       }
 
       const onResponse = async (
         _response: Http.IncomingMessage,
       ): Promise<void> => {
+        _response.on('error', onError)
         this.logResponse(op, request, params, _response, start)
 
         const decompressionResult = decompressResponse(_response)
@@ -431,10 +435,11 @@ export abstract class NodeBaseConnection
         }
       }
 
+      request.on('response', onResponse)
+
       function onAbort(): void {
         // Prefer 'abort' event since it always triggered unlike 'error' and 'close'
         // see the full sequence of events https://nodejs.org/api/http.html#httprequesturl-options-callback
-        removeRequestListeners()
         request.once('error', function () {
           /**
            * catch "Error: ECONNRESET" error which shouldn't be reported to users.
@@ -442,13 +447,6 @@ export abstract class NodeBaseConnection
            * */
         })
         reject(new Error('The user aborted a request.'))
-      }
-
-      function onClose(): void {
-        // Adapter uses 'close' event to clean up listeners after the successful response.
-        // It's necessary in order to handle 'abort' and 'timeout' events while response is streamed.
-        // It's always the last event, according to https://nodejs.org/docs/latest-v14.x/api/http.html#http_http_request_url_options_callback
-        removeRequestListeners()
       }
 
       function pipeStream(): void {
@@ -463,7 +461,6 @@ export abstract class NodeBaseConnection
 
         const callback = (err: NodeJS.ErrnoException | null): void => {
           if (err) {
-            removeRequestListeners()
             reject(err)
           }
         }
@@ -476,27 +473,6 @@ export abstract class NodeBaseConnection
       }
 
       pipeStream()
-
-      function onTimeout(): void {
-        removeRequestListeners()
-        request.destroy()
-        reject(new Error('Timeout error.'))
-      }
-
-      function removeRequestListeners(): void {
-        if (request.socket !== null) {
-          request.socket.setTimeout(0) // reset previously set timeout
-          request.socket.removeListener('timeout', onTimeout)
-        }
-        request.removeListener('close', onClose)
-        if (params.abort_signal !== undefined) {
-          request.removeListener('abort', onAbort)
-        }
-      }
-
-      request.on('response', onResponse)
-      request.on('error', onError)
-      request.on('close', onClose)
 
       if (params.abort_signal !== undefined) {
         params.abort_signal.addEventListener('abort', onAbort, { once: true })

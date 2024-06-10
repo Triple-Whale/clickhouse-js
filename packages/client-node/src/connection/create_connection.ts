@@ -1,4 +1,4 @@
-import type { ConnectionParams } from '@clickhouse/client-common'
+import type { ConnectionParams } from '@tw/clickhouse-client-common'
 import type {
   NodeBaseConnection,
   NodeConnectionParams,

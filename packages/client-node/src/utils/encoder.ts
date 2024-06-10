@@ -2,8 +2,8 @@ import type {
   DataFormat,
   InsertValues,
   ValuesEncoder,
-} from '@clickhouse/client-common'
-import { encodeJSON, isSupportedRawFormat } from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
+import { encodeJSON, isSupportedRawFormat } from '@tw/clickhouse-client-common'
 import Stream from 'stream'
 import { isStream, mapStream } from './stream'
 

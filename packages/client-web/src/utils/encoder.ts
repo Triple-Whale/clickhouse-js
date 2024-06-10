@@ -2,8 +2,8 @@ import type {
   DataFormat,
   InsertValues,
   ValuesEncoder,
-} from '@clickhouse/client-common'
-import { encodeJSON } from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
+import { encodeJSON } from '@tw/clickhouse-client-common'
 import { isStream } from './stream'
 
 export class WebValuesEncoder implements ValuesEncoder<ReadableStream> {

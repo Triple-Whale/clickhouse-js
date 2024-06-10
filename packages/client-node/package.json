@@ -23,6 +23,6 @@
     "dist"
   ],
   "dependencies": {
-    "@clickhouse/client-common": "*"
+    "@tw/clickhouse-client-common": "*"
   }
 }

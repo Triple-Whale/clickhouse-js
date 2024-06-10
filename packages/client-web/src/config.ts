@@ -3,7 +3,7 @@ import type {
   ConnectionParams,
   DataFormat,
   ImplementationDetails,
-} from '@clickhouse/client-common'
+} from '@tw/clickhouse-client-common'
 import { WebConnection } from './connection'
 import { ResultSet } from './result_set'
 import { WebValuesEncoder } from './utils'
